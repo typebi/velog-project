@@ -1,5 +1,7 @@
 package com.typebi.spring.api.requests
 
 data class CommentCreateDTO (
-    val content: String
+    val postId: Long,
+    val content: String,
+    val authorId: Long
 )

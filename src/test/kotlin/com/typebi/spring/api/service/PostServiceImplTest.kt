@@ -21,7 +21,7 @@ class PostServiceImplTest {
 
     private lateinit var userRepository: UserRepository
     private lateinit var postRepository: PostRepository
-    private lateinit var postService: PostServiceImpl
+    private lateinit var postService: PostService
 
     private lateinit var mockUser1: User
     private lateinit var stubbedUser1: User
