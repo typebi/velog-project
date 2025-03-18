@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service
 class UserServiceImpl(
     private val userRepository: UserRepository
 ) : UserService {
+
     @Transactional
     override fun createUser(userCreateDTO: UserCreateDTO): UserResponseDTO {
         return userResponseDTOFrom(userRepository.save(userOf(userCreateDTO)))
@@ -25,13 +26,13 @@ class UserServiceImpl(
     }
 
     override fun getUserById(id: Long): UserResponseDTO {
-        val user = userRepository.findById(id).orElseThrow { NotFoundException("User not found account with id : $id")}
+        val user = userRepository.findById(id).orElseThrow { NotFoundException("User not found with id : $id")}
         return userResponseDTOFrom(user)
     }
 
     @Transactional
     override fun updateUserById(id: Long, userUpdateDTO: UserUpdateDTO): UserResponseDTO {
-        val user = userRepository.findById(id).orElseThrow { NotFoundException("User not found account with id : $id")}
+        val user = userRepository.findById(id).orElseThrow { NotFoundException("User not found with id : $id")}
 
         userUpdateDTO.username?.let { user.username = it }
         userUpdateDTO.password?.let { user.password = BCryptPasswordEncoder().encode(it) }
@@ -42,7 +43,7 @@ class UserServiceImpl(
 
     @Transactional
     override fun deleteUserById(id: Long): Boolean {
-        val user = userRepository.findById(id).orElseThrow { NotFoundException("User not found account with id : $id")}
+        val user = userRepository.findById(id).orElseThrow { NotFoundException("User not found with id : $id")}
         userRepository.delete(user)
         return true
     }
