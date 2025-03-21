@@ -2,6 +2,7 @@ package com.typebi.spring.api.rest
 
 import com.typebi.spring.api.requests.UserCreateDTO
 import com.typebi.spring.api.requests.UserUpdateDTO
+import com.typebi.spring.api.responses.PostResponseDTO
 import com.typebi.spring.api.responses.UserResponseDTO
 import com.typebi.spring.api.service.UserService
 import com.typebi.spring.common.response.ApiResponse
@@ -34,6 +35,13 @@ class UserController(
     fun getUserById(@PathVariable(name = "userId") userId: Long): ResponseEntity<ApiResponse<UserResponseDTO>> {
         val userDTO = userService.getUserById(userId)
         val response = ApiResponse(true, userDTO, "User with ID $userId retrieved successfully", HttpStatus.OK.value())
+        return ResponseEntity.ok(response)
+    }
+
+    @GetMapping("/{userId:\\d+}")
+    fun getPostsByUserId(@PathVariable(name = "userId") userId: Long): ResponseEntity<ApiResponse<List<PostResponseDTO>>> {
+        val postDTOs = userService.getPostsByUserId(userId)
+        val response = ApiResponse(true, postDTOs, "User with ID $userId retrieved successfully", HttpStatus.OK.value())
         return ResponseEntity.ok(response)
     }
 

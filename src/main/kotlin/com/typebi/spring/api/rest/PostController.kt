@@ -40,8 +40,8 @@ class PostController(
 
     @GetMapping("/{postId:\\d+}/comments")
     fun getCommentsByPostId(@PathVariable(name = "postId") postId: Long): ResponseEntity<ApiResponse<List<CommentResponseDTO>>> {
-        val postDTO = postService.getCommentsByPostId(postId)
-        val response = ApiResponse(true, postDTO, "Comments with post ID $postId retrieved successfully", HttpStatus.OK.value())
+        val commentDTOs = postService.getCommentsByPostId(postId)
+        val response = ApiResponse(true, commentDTOs, "Comments with post ID $postId retrieved successfully", HttpStatus.OK.value())
         return ResponseEntity.ok(response)
     }
 

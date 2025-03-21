@@ -2,10 +2,13 @@ package com.typebi.spring.api.service
 
 import com.typebi.spring.api.requests.UserCreateDTO
 import com.typebi.spring.api.requests.UserUpdateDTO
+import com.typebi.spring.api.responses.PostResponseDTO
 import com.typebi.spring.api.responses.UserResponseDTO
+import com.typebi.spring.api.responses.postResponseDTOFrom
 import com.typebi.spring.api.responses.userResponseDTOFrom
 import com.typebi.spring.common.exception.NotFoundException
 import com.typebi.spring.db.entity.userOf
+import com.typebi.spring.db.repository.PostRepository
 import com.typebi.spring.db.repository.UserRepository
 import jakarta.transaction.Transactional
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
@@ -13,7 +16,8 @@ import org.springframework.stereotype.Service
 
 @Service
 class UserServiceImpl(
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val postRepository: PostRepository,
 ) : UserService {
 
     @Transactional
@@ -28,6 +32,12 @@ class UserServiceImpl(
     override fun getUserById(id: Long): UserResponseDTO {
         val user = userRepository.findById(id).orElseThrow { NotFoundException("User not found with id : $id")}
         return userResponseDTOFrom(user)
+    }
+
+    override fun getPostsByUserId(id: Long): List<PostResponseDTO> {
+        val user = userRepository.findById(id).orElseThrow { NotFoundException("User not found with id : $id")}
+        val posts = postRepository.findByAuthorId(id)
+        return posts.map { postResponseDTOFrom(it) }
     }
 
     @Transactional
