@@ -2,6 +2,7 @@ package com.typebi.spring.api.rest
 
 import com.typebi.spring.api.requests.PostCreateDTO
 import com.typebi.spring.api.requests.PostUpdateDTO
+import com.typebi.spring.api.responses.CommentResponseDTO
 import com.typebi.spring.api.responses.PostResponseDTO
 import com.typebi.spring.api.service.PostService
 import com.typebi.spring.common.response.ApiResponse
@@ -34,6 +35,13 @@ class PostController(
     fun getPostById(@PathVariable(name = "postId") postId: Long): ResponseEntity<ApiResponse<PostResponseDTO>> {
         val postDTO = postService.getPostById(postId)
         val response = ApiResponse(true, postDTO, "Post with ID $postId retrieved successfully", HttpStatus.OK.value())
+        return ResponseEntity.ok(response)
+    }
+
+    @GetMapping("/{postId:\\d+}/comments")
+    fun getCommentsByPostId(@PathVariable(name = "postId") postId: Long): ResponseEntity<ApiResponse<List<CommentResponseDTO>>> {
+        val postDTO = postService.getCommentsByPostId(postId)
+        val response = ApiResponse(true, postDTO, "Comments with post ID $postId retrieved successfully", HttpStatus.OK.value())
         return ResponseEntity.ok(response)
     }
 
