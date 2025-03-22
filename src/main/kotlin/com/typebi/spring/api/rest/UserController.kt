@@ -5,7 +5,9 @@ import com.typebi.spring.api.requests.UserUpdateDTO
 import com.typebi.spring.api.responses.PostResponseDTO
 import com.typebi.spring.api.responses.UserResponseDTO
 import com.typebi.spring.api.service.UserService
+import com.typebi.spring.common.exception.BadRequestException
 import com.typebi.spring.common.response.ApiResponse
+import org.springframework.hateoas.server.mvc.linkTo
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -34,6 +36,12 @@ class UserController(
     @GetMapping("/{userId:\\d+}")
     fun getUserById(@PathVariable(name = "userId") userId: Long): ResponseEntity<ApiResponse<UserResponseDTO>> {
         val userDTO = userService.getUserById(userId)
+        userDTO.add(
+            linkTo<UserController> { getUserById(userId) }.withSelfRel(),
+            linkTo<UserController> { updateUserById(userId, null) }.withRel("update"),
+            linkTo<UserController> { deleteUserById(userId) }.withRel("delete"),
+            linkTo<UserController> { getPostsByUserId(userId) }.withRel("posts")
+        )
         val response = ApiResponse(true, userDTO, "User with ID $userId retrieved successfully", HttpStatus.OK.value())
         return ResponseEntity.ok(response)
     }
@@ -48,8 +56,11 @@ class UserController(
     @PatchMapping("/{userId:\\d+}")
     fun updateUserById(
         @PathVariable(name = "userId") userId: Long,
-        @RequestBody userUpdateDTO: UserUpdateDTO
+        @RequestBody userUpdateDTO: UserUpdateDTO?
     ): ResponseEntity<ApiResponse<UserResponseDTO>> {
+        if (userUpdateDTO == null) {
+            throw BadRequestException("Request body is null")
+        }
         val userDTO = userService.updateUserById(userId, userUpdateDTO)
         val response = ApiResponse(true, userDTO, "User with ID $userId updated successfully", HttpStatus.OK.value())
         return ResponseEntity.ok(response)

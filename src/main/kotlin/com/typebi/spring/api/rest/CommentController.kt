@@ -4,7 +4,9 @@ import com.typebi.spring.api.requests.CommentCreateDTO
 import com.typebi.spring.api.requests.CommentUpdateDTO
 import com.typebi.spring.api.responses.CommentResponseDTO
 import com.typebi.spring.api.service.CommentService
+import com.typebi.spring.common.exception.BadRequestException
 import com.typebi.spring.common.response.ApiResponse
+import org.springframework.hateoas.server.mvc.linkTo
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -32,6 +34,12 @@ class CommentController(
     @GetMapping("/{commentId:\\d+}")
     fun getCommentById(@PathVariable(name = "commentId") commentId: Long): ResponseEntity<ApiResponse<CommentResponseDTO>> {
         val commentDTO = commentService.getCommentById(commentId)
+        commentDTO.add(
+            linkTo<CommentController> { getCommentById(commentId) }.withSelfRel(),
+            linkTo<CommentController> { updateCommentById(commentId, null) }.withRel("update"),
+            linkTo<CommentController> { deleteCommentById(commentId) }.withRel("delete"),
+            linkTo<UserController> { getUserById(commentDTO.authorId) }.withRel("author")
+        )
         val response = ApiResponse(true, commentDTO, "Comment with ID $commentId retrieved successfully", HttpStatus.OK.value())
         return ResponseEntity.ok(response)
     }
@@ -39,8 +47,11 @@ class CommentController(
     @PatchMapping("/{commentId:\\d+}")
     fun updateCommentById(
         @PathVariable(name = "commentId") commentId: Long,
-        @RequestBody commentUpdateDTO: CommentUpdateDTO
+        @RequestBody commentUpdateDTO: CommentUpdateDTO?
     ): ResponseEntity<ApiResponse<CommentResponseDTO>> {
+        if (commentUpdateDTO == null) {
+            throw BadRequestException("Request body is null")
+        }
         val commentDTO = commentService.updateCommentById(commentId, commentUpdateDTO)
         val response = ApiResponse(true, commentDTO, "Comment with ID $commentId updated successfully", HttpStatus.OK.value())
         return ResponseEntity.ok(response)
