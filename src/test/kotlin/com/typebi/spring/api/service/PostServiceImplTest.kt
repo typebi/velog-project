@@ -1,12 +1,11 @@
 package com.typebi.spring.api.service
 
+import com.typebi.spring.api.requests.CommentCreateDTO
 import com.typebi.spring.api.requests.PostCreateDTO
 import com.typebi.spring.api.requests.PostUpdateDTO
-import com.typebi.spring.api.requests.UserCreateDTO
 import com.typebi.spring.common.exception.NotFoundException
-import com.typebi.spring.db.entity.User
-import com.typebi.spring.db.entity.postOf
-import com.typebi.spring.db.entity.userOf
+import com.typebi.spring.db.entity.*
+import com.typebi.spring.db.repository.CommentRepository
 import com.typebi.spring.db.repository.PostRepository
 import com.typebi.spring.db.repository.UserRepository
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -21,54 +20,68 @@ class PostServiceImplTest {
 
     private lateinit var userRepository: UserRepository
     private lateinit var postRepository: PostRepository
+    private lateinit var commentRepository: CommentRepository
     private lateinit var postService: PostService
 
     private lateinit var mockUser1: User
-    private lateinit var stubbedUser1: User
-    private lateinit var stubbedUser2: User
-    private lateinit var userCreateDTO1: UserCreateDTO
-    private lateinit var userCreateDTO2: UserCreateDTO
-    private lateinit var postCreateDTO1: PostCreateDTO
-    private lateinit var postCreateDTO2: PostCreateDTO
-    private lateinit var postUpdateDTO1: PostUpdateDTO
-    private lateinit var postUpdateDTO2: PostUpdateDTO
-    private lateinit var postUpdateDTO3: PostUpdateDTO
+    private lateinit var mockUser2: User
+    private lateinit var mockPost1: Post
+    private lateinit var mockPost2: Post
+    private lateinit var mockComment1: Comment
+    private lateinit var mockComment2: Comment
 
     @BeforeEach
     fun setUp() {
         userRepository = mock(UserRepository::class.java)
         postRepository = mock(PostRepository::class.java)
-        postService = PostServiceImpl(userRepository, postRepository)
+        commentRepository = mock(CommentRepository::class.java)
+        postService = PostServiceImpl(userRepository, postRepository, commentRepository)
 
         mockUser1 = mock(User::class.java)
+        mockUser2 = mock(User::class.java)
+        mockPost1 = mock(Post::class.java)
+        mockPost2 = mock(Post::class.java)
+        mockComment1 = mock(Comment::class.java)
+        mockComment2 = mock(Comment::class.java)
         `when`(mockUser1.id).thenReturn(1L)
-        userCreateDTO1 = UserCreateDTO(username = "testname1", password = "1234", email = "testmail1")
-        userCreateDTO2 = UserCreateDTO(username = "testname2", password = "1234", email = "testmail2")
-        stubbedUser1 = userOf(userCreateDTO1)
-        stubbedUser2 = userOf(userCreateDTO2)
+        `when`(mockUser2.id).thenReturn(2L)
+        `when`(mockPost1.id).thenReturn(1L)
+        `when`(mockPost1.author).thenReturn(mockUser1)
+        `when`(mockPost1.title).thenReturn("mockPostTitle1")
+        `when`(mockPost1.content).thenReturn("mockPostContent1")
+        `when`(mockPost2.id).thenReturn(2L)
+        `when`(mockPost2.author).thenReturn(mockUser2)
+        `when`(mockPost2.title).thenReturn("mockPostTitle2")
+        `when`(mockPost2.content).thenReturn("mockPostContent2")
+        `when`(mockComment1.id).thenReturn(1L)
+        `when`(mockComment1.post).thenReturn(mockPost1)
+        `when`(mockComment1.content).thenReturn("mockComment1.content")
+        `when`(mockComment1.author).thenReturn(mockUser1)
+        `when`(mockComment2.id).thenReturn(2L)
+        `when`(mockComment2.post).thenReturn(mockPost1)
+        `when`(mockComment2.author).thenReturn(mockUser1)
+        `when`(mockComment2.content).thenReturn("mockComment2.content")
 
-        postCreateDTO1 = PostCreateDTO(title = "title1", content = "content1", authorId = stubbedUser1.id)
-        postCreateDTO2 = PostCreateDTO(title = "title2", content = "content2", authorId = stubbedUser1.id)
-        postUpdateDTO1 = PostUpdateDTO(title = "title1", content = "content1", authorId = mockUser1.id)
-        postUpdateDTO2 = PostUpdateDTO(title = "title2", content = "content2", authorId = mockUser1.id)
-        postUpdateDTO3 = PostUpdateDTO(title = null, content = null, authorId = null)
+        `when`(postRepository.findById(mockPost1.id)).thenReturn(Optional.of(mockPost1))
+        `when`(userRepository.findById(mockUser1.id)).thenReturn(Optional.of(mockUser1))
+        `when`(userRepository.findById(mockUser2.id)).thenReturn(Optional.of(mockUser2))
+        `when`(commentRepository.findById(mockComment1.id)).thenReturn(Optional.of(mockComment1))
+        `when`(commentRepository.findById(mockComment2.id)).thenReturn(Optional.of(mockComment2))
     }
 
     @Test
     fun createPostTest() {
-        val savedPost = postOf(postCreateDTO1, stubbedUser1)
+        `when`(userRepository.findById(mockUser1.id)).thenReturn(Optional.of(mockUser1))
+        `when`(postRepository.save(any())).thenReturn(mockPost1)
 
-        `when`(userRepository.findById(stubbedUser1.id)).thenReturn(Optional.of(stubbedUser1))
-        `when`(postRepository.save(any())).thenReturn(savedPost)
+        val result = postService.createPost(PostCreateDTO("title", "content", mockUser1.id))
 
-        val result = postService.createPost(postCreateDTO1)
+        assertEquals(mockPost1.id, result.id)
+        assertEquals(mockPost1.title, result.title)
+        assertEquals(mockPost1.content, result.content)
+        assertEquals(mockPost1.author.id, result.authorId)
 
-        assertEquals(savedPost.id, result.id)
-        assertEquals(savedPost.title, result.title)
-        assertEquals(savedPost.content, result.content)
-        assertEquals(savedPost.author.id, result.authorId)
-
-        verify(userRepository, times(1)).findById(stubbedUser1.id)
+        verify(userRepository, times(1)).findById(mockUser1.id)
         verify(postRepository, times(1)).save(any())
     }
 
@@ -87,10 +100,7 @@ class PostServiceImplTest {
 
     @Test
     fun getPostsTest() {
-        val posts = listOf(
-            postOf(postCreateDTO1, stubbedUser1),
-            postOf(postCreateDTO2, stubbedUser1),
-        )
+        val posts = listOf(mockPost1, mockPost2)
 
         `when`(postRepository.findAll()).thenReturn(posts)
 
@@ -109,18 +119,16 @@ class PostServiceImplTest {
 
     @Test
     fun getPostByIdTest() {
-        val post = postOf(postCreateDTO1, stubbedUser1)
+        `when`(postRepository.findById(mockPost1.id)).thenReturn(Optional.of(mockPost1))
 
-        `when`(postRepository.findById(post.id)).thenReturn(Optional.of(post))
+        val result = postService.getPostById(mockPost1.id)
 
-        val result = postService.getPostById(post.id)
+        assertEquals(mockPost1.id, result.id)
+        assertEquals(mockPost1.title, result.title)
+        assertEquals(mockPost1.content, result.content)
+        assertEquals(mockPost1.author.id, result.authorId)
 
-        assertEquals(post.id, result.id)
-        assertEquals(post.title, result.title)
-        assertEquals(post.content, result.content)
-        assertEquals(post.author.id, result.authorId)
-
-        verify(postRepository, times(1)).findById(post.id)
+        verify(postRepository, times(1)).findById(mockPost1.id)
     }
 
     @Test
@@ -135,46 +143,72 @@ class PostServiceImplTest {
     }
 
     @Test
-    fun updatePostByIdTest() {
-        val post = postOf(postCreateDTO1, mockUser1)
+    fun getCommentsByPostId() {
+        val postId = 1L
+        val stubbedComment1 = commentOf(CommentCreateDTO(postId, "testcontent1", mockUser1.id), mockPost1, mockUser1)
+        val stubbedComment2 = commentOf(CommentCreateDTO(postId, "testcontent2", mockUser1.id), mockPost1, mockUser2)
 
-        `when`(postRepository.findById(post.id)).thenReturn(Optional.of(post))
+        `when`(commentRepository.findByPostId(postId)).thenReturn(listOf(stubbedComment1, stubbedComment2))
+
+
+        val result = postService.getCommentsByPostId(postId)
+
+        assertEquals(stubbedComment1.id, result[0].id)
+        assertEquals(stubbedComment1.post.id, result[0].postId)
+        assertEquals(stubbedComment1.content, result[0].content)
+        assertEquals(stubbedComment1.author.id, result[0].authorId)
+        assertEquals(stubbedComment2.id, result[1].id)
+        assertEquals(stubbedComment2.post.id, result[1].postId)
+        assertEquals(stubbedComment2.content, result[1].content)
+        assertEquals(stubbedComment2.author.id, result[1].authorId)
+
+        verify(commentRepository, times(1)).findByPostId(postId)
+    }
+
+    @Test
+    fun updatePostByIdTest() {
+        val postUpdateDTO1 = PostUpdateDTO(title = "title1", content = "content1", authorId = mockUser1.id)
+
+        `when`(mockPost1.author).thenReturn(mockUser1)
+        `when`(mockPost1.title).thenReturn(postUpdateDTO1.title)
+        `when`(mockPost1.content).thenReturn(postUpdateDTO1.content)
+
+        `when`(postRepository.findById(mockPost1.id)).thenReturn(Optional.of(mockPost1))
         `when`(userRepository.findById(mockUser1.id)).thenReturn(Optional.of(mockUser1))
 
-        val result = postService.updatePostById(post.id, postUpdateDTO1)
+        val result = postService.updatePostById(mockPost1.id, postUpdateDTO1)
 
-        assertEquals(post.id, result.id)
+        assertEquals(mockPost1.id, result.id)
         assertEquals(postUpdateDTO1.title, result.title)
         assertEquals(postUpdateDTO1.content, result.content)
         assertEquals(mockUser1.id, result.authorId)
 
-        verify(postRepository, times(1)).findById(post.id)
+        verify(postRepository, times(1)).findById(mockPost1.id)
         verify(userRepository,times(1)).findById(mockUser1.id)
     }
 
     @Test
     fun updatePostByIdNotFoundTest() {
-        val post = postOf(postCreateDTO1, stubbedUser1)
-        `when`(postRepository.findById(stubbedUser2.id)).thenReturn(Optional.empty())
+        val postUpdateDTO2 = PostUpdateDTO(title = "title2", content = "content2", authorId = mockUser1.id)
 
-        assertThrows<NotFoundException> { postService.updatePostById(post.id, postUpdateDTO2) }
+        `when`(postRepository.findById(mockPost2.id)).thenReturn(Optional.empty())
 
-        verify(postRepository, times(1)).findById(post.id)
+        assertThrows<NotFoundException> { postService.updatePostById(mockPost2.id, postUpdateDTO2) }
+
+        verify(postRepository, times(1)).findById(mockPost2.id)
     }
 
     @Test
     fun deletePostByIdTest() {
-        val post = postOf(postCreateDTO1, stubbedUser1)
+        `when`(postRepository.findById(mockPost1.id)).thenReturn(Optional.of(mockPost1))
+        doNothing().`when`(postRepository).delete(mockPost1)
 
-        `when`(postRepository.findById(post.id)).thenReturn(Optional.of(post))
-        doNothing().`when`(postRepository).delete(post)
-
-        val result = postService.deletePostById(post.id)
+        val result = postService.deletePostById(mockPost1.id)
 
         assertTrue(result)
 
-        verify(postRepository, times(1)).findById(post.id)
-        verify(postRepository, times(1)).delete(post)
+        verify(postRepository, times(1)).findById(mockPost1.id)
+        verify(postRepository, times(1)).delete(mockPost1)
     }
 
     @Test
