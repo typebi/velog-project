@@ -38,7 +38,7 @@ class UserController(
         return ResponseEntity.ok(response)
     }
 
-    @GetMapping("/{userId:\\d+}")
+    @GetMapping("/{userId:\\d+}/posts")
     fun getPostsByUserId(@PathVariable(name = "userId") userId: Long): ResponseEntity<ApiResponse<List<PostResponseDTO>>> {
         val postDTOs = userService.getPostsByUserId(userId)
         val response = ApiResponse(true, postDTOs, "User with ID $userId retrieved successfully", HttpStatus.OK.value())
