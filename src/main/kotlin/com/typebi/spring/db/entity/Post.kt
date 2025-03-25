@@ -1,6 +1,6 @@
 package com.typebi.spring.db.entity
 
-import com.typebi.spring.api.requests.PostCreateDTO
+import com.typebi.spring.post.requests.PostCreateDTO
 import jakarta.persistence.*
 
 @Entity
