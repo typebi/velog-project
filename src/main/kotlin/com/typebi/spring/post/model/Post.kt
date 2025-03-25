@@ -1,5 +1,6 @@
-package com.typebi.spring.db.entity
+package com.typebi.spring.post.model
 
+import com.typebi.spring.user.model.User
 import com.typebi.spring.post.requests.PostCreateDTO
 import jakarta.persistence.*
 

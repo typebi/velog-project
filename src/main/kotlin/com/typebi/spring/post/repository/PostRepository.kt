@@ -1,6 +1,6 @@
-package com.typebi.spring.db.repository
+package com.typebi.spring.post.repository
 
-import com.typebi.spring.db.entity.Post
+import com.typebi.spring.post.model.Post
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 

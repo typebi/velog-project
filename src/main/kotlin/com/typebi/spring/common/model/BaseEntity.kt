@@ -1,4 +1,4 @@
-package com.typebi.spring.db.entity
+package com.typebi.spring.common.model
 
 import jakarta.persistence.Column
 import java.time.LocalDateTime

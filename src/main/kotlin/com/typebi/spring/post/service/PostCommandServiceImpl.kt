@@ -5,9 +5,9 @@ import com.typebi.spring.post.requests.PostUpdateDTO
 import com.typebi.spring.post.responses.PostResponseDTO
 import com.typebi.spring.post.responses.postResponseDTOFrom
 import com.typebi.spring.common.exception.NotFoundException
-import com.typebi.spring.db.entity.postOf
-import com.typebi.spring.db.repository.PostRepository
-import com.typebi.spring.db.repository.UserRepository
+import com.typebi.spring.post.model.postOf
+import com.typebi.spring.post.repository.PostRepository
+import com.typebi.spring.user.repository.UserRepository
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.stereotype.Service

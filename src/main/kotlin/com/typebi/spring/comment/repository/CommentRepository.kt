@@ -1,6 +1,6 @@
-package com.typebi.spring.db.repository
+package com.typebi.spring.comment.repository
 
-import com.typebi.spring.db.entity.Comment
+import com.typebi.spring.comment.model.Comment
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 

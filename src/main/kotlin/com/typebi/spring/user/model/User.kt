@@ -1,5 +1,6 @@
-package com.typebi.spring.db.entity
+package com.typebi.spring.user.model
 
+import com.typebi.spring.common.model.BaseEntity
 import com.typebi.spring.user.requests.UserCreateDTO
 import jakarta.persistence.*
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder

@@ -1,7 +1,7 @@
 package com.typebi.spring.post.responses
 
 import com.typebi.spring.user.responses.UserResponseDTO
-import com.typebi.spring.db.entity.Post
+import com.typebi.spring.post.model.Post
 import org.springframework.hateoas.RepresentationModel
 
 data class PostResponseDTO (

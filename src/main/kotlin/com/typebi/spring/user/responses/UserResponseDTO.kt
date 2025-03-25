@@ -1,6 +1,6 @@
 package com.typebi.spring.user.responses
 
-import com.typebi.spring.db.entity.User
+import com.typebi.spring.user.model.User
 import org.springframework.hateoas.RepresentationModel
 
 

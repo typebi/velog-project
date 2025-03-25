@@ -1,6 +1,6 @@
-package com.typebi.spring.db.repository
+package com.typebi.spring.user.repository
 
-import com.typebi.spring.db.entity.User
+import com.typebi.spring.user.model.User
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 

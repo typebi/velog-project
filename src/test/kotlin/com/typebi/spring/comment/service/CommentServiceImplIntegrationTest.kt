@@ -1,13 +1,17 @@
 package com.typebi.spring.comment.service
 
+import com.typebi.spring.comment.model.*
 import com.typebi.spring.comment.requests.CommentCreateDTO
 import com.typebi.spring.comment.requests.CommentUpdateDTO
-import com.typebi.spring.db.entity.*
-import com.typebi.spring.db.repository.CommentRepository
-import com.typebi.spring.db.repository.PostRepository
-import com.typebi.spring.db.repository.UserRepository
+import com.typebi.spring.comment.repository.CommentRepository
+import com.typebi.spring.post.repository.PostRepository
+import com.typebi.spring.user.repository.UserRepository
+import com.typebi.spring.post.model.Post
+import com.typebi.spring.post.model.postOf
 import com.typebi.spring.post.requests.PostCreateDTO
 import com.typebi.spring.post.service.PostQueryService
+import com.typebi.spring.user.model.User
+import com.typebi.spring.user.model.userOf
 import com.typebi.spring.user.requests.UserCreateDTO
 import com.typebi.spring.utils.QueryCounterAspect
 import org.junit.jupiter.api.AfterEach

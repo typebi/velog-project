@@ -7,9 +7,9 @@ import com.typebi.spring.user.responses.UserResponseDTO
 import com.typebi.spring.post.responses.postResponseDTOFrom
 import com.typebi.spring.user.responses.userResponseDTOFrom
 import com.typebi.spring.common.exception.NotFoundException
-import com.typebi.spring.db.entity.userOf
-import com.typebi.spring.db.repository.PostRepository
-import com.typebi.spring.db.repository.UserRepository
+import com.typebi.spring.user.model.userOf
+import com.typebi.spring.post.repository.PostRepository
+import com.typebi.spring.user.repository.UserRepository
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service

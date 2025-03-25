@@ -1,12 +1,14 @@
 package com.typebi.spring.post.service
 
+import com.typebi.spring.comment.model.Comment
+import com.typebi.spring.post.model.Post
+import com.typebi.spring.user.model.User
 import com.typebi.spring.post.requests.PostCreateDTO
 import com.typebi.spring.post.requests.PostUpdateDTO
 import com.typebi.spring.common.exception.NotFoundException
-import com.typebi.spring.db.entity.*
-import com.typebi.spring.db.repository.CommentRepository
-import com.typebi.spring.db.repository.PostRepository
-import com.typebi.spring.db.repository.UserRepository
+import com.typebi.spring.comment.repository.CommentRepository
+import com.typebi.spring.post.repository.PostRepository
+import com.typebi.spring.user.repository.UserRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach

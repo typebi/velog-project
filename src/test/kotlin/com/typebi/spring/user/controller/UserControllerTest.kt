@@ -5,8 +5,8 @@ import com.typebi.spring.user.requests.UserCreateDTO
 import com.typebi.spring.user.requests.UserUpdateDTO
 import com.typebi.spring.user.responses.userResponseDTOFrom
 import com.typebi.spring.user.service.UserService
-import com.typebi.spring.db.entity.User
-import com.typebi.spring.db.entity.userOf
+import com.typebi.spring.user.model.User
+import com.typebi.spring.user.model.userOf
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 

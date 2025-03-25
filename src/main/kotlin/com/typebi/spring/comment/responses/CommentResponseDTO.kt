@@ -1,7 +1,7 @@
 package com.typebi.spring.comment.responses
 
 import com.typebi.spring.user.responses.UserResponseDTO
-import com.typebi.spring.db.entity.Comment
+import com.typebi.spring.comment.model.Comment
 import org.springframework.hateoas.RepresentationModel
 
 data class CommentResponseDTO (

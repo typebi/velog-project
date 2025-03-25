@@ -5,8 +5,8 @@ import com.typebi.spring.post.responses.PostResponseDTO
 import com.typebi.spring.comment.responses.commentResponseDTOFrom
 import com.typebi.spring.post.responses.postResponseDTOFrom
 import com.typebi.spring.common.exception.NotFoundException
-import com.typebi.spring.db.repository.CommentRepository
-import com.typebi.spring.db.repository.PostRepository
+import com.typebi.spring.comment.repository.CommentRepository
+import com.typebi.spring.post.repository.PostRepository
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional

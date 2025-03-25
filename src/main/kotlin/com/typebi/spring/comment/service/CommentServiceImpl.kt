@@ -5,10 +5,10 @@ import com.typebi.spring.comment.requests.CommentUpdateDTO
 import com.typebi.spring.comment.responses.CommentResponseDTO
 import com.typebi.spring.comment.responses.commentResponseDTOFrom
 import com.typebi.spring.common.exception.NotFoundException
-import com.typebi.spring.db.entity.commentOf
-import com.typebi.spring.db.repository.CommentRepository
-import com.typebi.spring.db.repository.PostRepository
-import com.typebi.spring.db.repository.UserRepository
+import com.typebi.spring.comment.model.commentOf
+import com.typebi.spring.comment.repository.CommentRepository
+import com.typebi.spring.post.repository.PostRepository
+import com.typebi.spring.user.repository.UserRepository
 import org.springframework.cache.CacheManager
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.transaction.annotation.Transactional

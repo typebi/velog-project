@@ -1,10 +1,10 @@
 package com.typebi.spring.user.service
 
 import com.typebi.spring.common.exception.NotFoundException
-import com.typebi.spring.db.entity.Post
-import com.typebi.spring.db.entity.User
-import com.typebi.spring.db.repository.PostRepository
-import com.typebi.spring.db.repository.UserRepository
+import com.typebi.spring.post.model.Post
+import com.typebi.spring.user.model.User
+import com.typebi.spring.post.repository.PostRepository
+import com.typebi.spring.user.repository.UserRepository
 import com.typebi.spring.user.requests.UserCreateDTO
 import com.typebi.spring.user.requests.UserUpdateDTO
 import org.junit.jupiter.api.Assertions
