@@ -56,8 +56,8 @@ class UserControllerTest {
             .content(objectMapper.writeValueAsString(userCreateDTO)))
 //            .andExpect(status().isCreated)
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(jsonPath("$.username").value(userCreateDTO.username))
-            .andExpect(jsonPath("$.email").value(userCreateDTO.email))
+            .andExpect(jsonPath("$.data.username").value(userCreateDTO.username))
+            .andExpect(jsonPath("$.data.email").value(userCreateDTO.email))
     }
 
     @Test
@@ -67,10 +67,10 @@ class UserControllerTest {
         mockMvc.perform(get("/api/v1/users"))
             .andExpect(status().isOk)
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(jsonPath("$[0].username").value(stubbedUser1.username))
-            .andExpect(jsonPath("$[0].email").value(stubbedUser1.email))
-            .andExpect(jsonPath("$[1].username").value(stubbedUser2.username))
-            .andExpect(jsonPath("$[1].email").value(stubbedUser2.email))
+            .andExpect(jsonPath("$.data.[0].username").value(stubbedUser1.username))
+            .andExpect(jsonPath("$.data.[0].email").value(stubbedUser1.email))
+            .andExpect(jsonPath("$.data.[1].username").value(stubbedUser2.username))
+            .andExpect(jsonPath("$.data.[1].email").value(stubbedUser2.email))
     }
 
     @Test
@@ -80,8 +80,8 @@ class UserControllerTest {
         mockMvc.perform(get("/api/v1/users/${stubbedUser1.id}"))
             .andExpect(status().isOk)
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(jsonPath("$.username").value(stubbedUser1.username))
-            .andExpect(jsonPath("$.email").value(stubbedUser1.email))
+            .andExpect(jsonPath("$.data.username").value(stubbedUser1.username))
+            .andExpect(jsonPath("$.data.email").value(stubbedUser1.email))
     }
 
     @Test
@@ -95,8 +95,8 @@ class UserControllerTest {
             .content(objectMapper.writeValueAsString(userUpdateDTO)))
             .andExpect(status().isOk)
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(jsonPath("$.username").value(userUpdateDTO.username))
-            .andExpect(jsonPath("$.email").value(userUpdateDTO.email))
+            .andExpect(jsonPath("$.data.username").value(userUpdateDTO.username))
+            .andExpect(jsonPath("$.data.email").value(userUpdateDTO.email))
     }
 
     @Test
