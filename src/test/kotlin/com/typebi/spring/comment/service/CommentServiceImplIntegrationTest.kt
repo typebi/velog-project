@@ -10,6 +10,7 @@ import com.typebi.spring.post.requests.PostCreateDTO
 import com.typebi.spring.post.service.PostQueryService
 import com.typebi.spring.user.requests.UserCreateDTO
 import com.typebi.spring.utils.QueryCounterAspect
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -44,30 +45,24 @@ class CommentServiceImplIntegrationTest {
     private lateinit var comment1: Comment
     private lateinit var comment2: Comment
 
-    companion object {
-        private var userCounter = 0
-        private var postCounter = 0
-        private var commentCounter = 0
-    }
-
     @BeforeEach
     fun setUp() {
-        userCounter++
-        postCounter++
-        commentCounter++
-
         // 테스트 데이터 생성 및 저장
-        user1 = userRepository.save(userOf(UserCreateDTO(username = "user$userCounter", password = "1234", email = "user$userCounter@example.com")))
-        post1 = postRepository.save(postOf(PostCreateDTO(title = "PostTitle$postCounter", content = "PostContent$postCounter", authorId = user1.id), user1))
-        comment1 = commentRepository.save(commentOf(CommentCreateDTO(postId = post1.id, content = "Comment$commentCounter.content", authorId = user1.id), post1, user1))
+        user1 = userRepository.save(userOf(UserCreateDTO(username = "user1", password = "1234", email = "user1@example.com")))
+        post1 = postRepository.save(postOf(PostCreateDTO(title = "PostTitle1", content = "PostContent1", authorId = user1.id), user1))
+        comment1 = commentRepository.save(commentOf(CommentCreateDTO(postId = post1.id, content = "Comment1.content", authorId = user1.id), post1, user1))
 
-        userCounter++
-        postCounter++
-        commentCounter++
+        user2 = userRepository.save(userOf(UserCreateDTO(username = "user2", password = "1234", email = "user2@example.com")))
+        post2 = postRepository.save(postOf(PostCreateDTO(title = "PostTitle2", content = "PostContent2", authorId = user2.id), user2))
+        comment2 = commentRepository.save(commentOf(CommentCreateDTO(postId = post1.id, content = "Comment2.content", authorId = user1.id), post1, user1))
 
-        user2 = userRepository.save(userOf(UserCreateDTO(username = "user$userCounter", password = "1234", email = "user$userCounter@example.com")))
-        post2 = postRepository.save(postOf(PostCreateDTO(title = "PostTitle$postCounter", content = "PostContent$postCounter", authorId = user2.id), user2))
-        comment2 = commentRepository.save(commentOf(CommentCreateDTO(postId = post1.id, content = "Comment$commentCounter.content", authorId = user1.id), post1, user1))
+    }
+
+    @AfterEach
+    fun clear() {
+        commentRepository.deleteAll()
+        postRepository.deleteAll()
+        userRepository.deleteAll()
 
         // 쿼리 카운트 초기화
         queryCounterAspect.resetCount()

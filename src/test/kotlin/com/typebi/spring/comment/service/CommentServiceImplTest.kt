@@ -37,6 +37,7 @@ class CommentServiceImplTest {
         userRepository = Mockito.mock(UserRepository::class.java)
         postRepository = Mockito.mock(PostRepository::class.java)
         commentRepository = Mockito.mock(CommentRepository::class.java)
+        cacheManager = Mockito.mock(CacheManager::class.java)
         commentService = CommentServiceImpl(userRepository, postRepository, commentRepository, cacheManager)
 
         mockUser1 = Mockito.mock(User::class.java)
