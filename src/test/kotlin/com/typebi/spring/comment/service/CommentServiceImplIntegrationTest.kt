@@ -1,12 +1,13 @@
-package com.typebi.spring.post.service
+package com.typebi.spring.comment.service
 
 import com.typebi.spring.comment.requests.CommentCreateDTO
+import com.typebi.spring.comment.requests.CommentUpdateDTO
 import com.typebi.spring.db.entity.*
 import com.typebi.spring.db.repository.CommentRepository
 import com.typebi.spring.db.repository.PostRepository
 import com.typebi.spring.db.repository.UserRepository
 import com.typebi.spring.post.requests.PostCreateDTO
-import com.typebi.spring.post.responses.PostResponseDTO
+import com.typebi.spring.post.service.PostQueryService
 import com.typebi.spring.user.requests.UserCreateDTO
 import com.typebi.spring.utils.QueryCounterAspect
 import org.junit.jupiter.api.Assertions.*
@@ -20,7 +21,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest
-class PostQueryServiceImplIntegrationTest {
+class CommentServiceImplIntegrationTest {
     @Autowired
     lateinit var userRepository: UserRepository
     @Autowired
@@ -29,6 +30,8 @@ class PostQueryServiceImplIntegrationTest {
     lateinit var commentRepository: CommentRepository
     @Autowired
     lateinit var postQueryService: PostQueryService
+    @Autowired
+    lateinit var commentService: CommentService
     @Autowired
     lateinit var cacheManager: CacheManager
     @Autowired
@@ -75,37 +78,46 @@ class PostQueryServiceImplIntegrationTest {
     }
 
     @Test
-    fun getPostByIdCacheableTest() {
+    fun updateCommentByIdCacheEvictTest() {
         // 처음 호출 시에는 캐시가 비어 있으므로 데이터베이스에서 조회
-        val post1 = postQueryService.getPostById(post1.id)
-        assertNotNull(post1)
+        val comments = postQueryService.getCommentsByPostId(post1.id)
+        assertNotNull(comments)
+        assertEquals(2, comments.size)
         assertEquals(1, queryCounterAspect.queryCount)
 
-        // 캐시에 저장되었는지 확인
-        val cachedPost1 = cacheManager.getCache("posts")?.get(this.post1.id, PostResponseDTO::class.java)
-        assertEquals(post1, cachedPost1)
+        // 캐시에 저장되어 있는지 확인
+        val cachedComments1 = cacheManager.getCache("commentsByPost")?.get(post1.id, List::class.java)
+        assertEquals(comments, cachedComments1)
 
-        // 두 번째 호출 시에는 캐시에서 조회되어야 하므로 데이터베이스 조회 횟수가 증가하지 않아야 함
-        val post2 = postQueryService.getPostById(this.post1.id)
-        assertEquals(post1, post2)
+        // 업데이트
+        val result = commentService.updateCommentById(comment1.id, CommentUpdateDTO(null, "updatedContent", null))
+        assertNotNull(result)
+        assertEquals(1, queryCounterAspect.queryCount)
+
+        // 캐시에서 삭제가 됐는지 확인
+        val cachedComments2 = cacheManager.getCache("commentsByPost")?.get(post1.id, List::class.java)
+        assertNull(cachedComments2)
         assertEquals(1, queryCounterAspect.queryCount)
     }
 
     @Test
-    fun getCommentsByPostIdCacheableTest() {
+    fun deleteCommentByIdCacheEvictTest() {
         // 처음 호출 시에는 캐시가 비어 있으므로 데이터베이스에서 조회
-        val comments1 = postQueryService.getCommentsByPostId(post1.id)
-        assertNotNull(comments1)
-        assertEquals(2, comments1.size)
-
-        // 캐시에 저장되었는지 확인
-        val cachedComments = cacheManager.getCache("commentsByPost")?.get(post1.id, List::class.java)
-        assertNotNull(cachedComments)
-        assertEquals(comments1, cachedComments)
-
-        // 두 번째 호출 시에는 캐시에서 조회되어야 하므로 데이터베이스 조회 횟수가 증가하지 않아야 함
-        val comments2 = postQueryService.getCommentsByPostId(post1.id)
-        assertEquals(comments1, comments2)
+        val comments = postQueryService.getCommentsByPostId(post1.id)
+        assertNotNull(comments)
+        assertEquals(2, comments.size)
         assertEquals(1, queryCounterAspect.queryCount)
+
+        // 캐시에 저장되어 있는지 확인
+        val cachedComments1 = cacheManager.getCache("commentsByPost")?.get(post1.id, List::class.java)
+        assertEquals(comments, cachedComments1)
+
+        // 삭제
+        val result = commentService.deleteCommentById(comment1.id)
+        assertTrue(result)
+
+        // 캐시에서 삭제가 됐는지 확인
+        val cachedComments2 = cacheManager.getCache("commentsByPost")?.get(post1.id, List::class.java)
+        assertNull(cachedComments2)
     }
 }

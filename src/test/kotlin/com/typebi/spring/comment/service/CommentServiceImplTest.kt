@@ -14,6 +14,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito
+import org.springframework.cache.CacheManager
 import java.util.*
 
 class CommentServiceImplTest {
@@ -21,6 +22,7 @@ class CommentServiceImplTest {
     private lateinit var userRepository: UserRepository
     private lateinit var postRepository: PostRepository
     private lateinit var commentRepository: CommentRepository
+    private lateinit var cacheManager: CacheManager
     private lateinit var commentService: CommentService
 
     private lateinit var mockUser1: User
@@ -35,7 +37,7 @@ class CommentServiceImplTest {
         userRepository = Mockito.mock(UserRepository::class.java)
         postRepository = Mockito.mock(PostRepository::class.java)
         commentRepository = Mockito.mock(CommentRepository::class.java)
-        commentService = CommentServiceImpl(userRepository, postRepository, commentRepository)
+        commentService = CommentServiceImpl(userRepository, postRepository, commentRepository, cacheManager)
 
         mockUser1 = Mockito.mock(User::class.java)
         mockUser2 = Mockito.mock(User::class.java)
