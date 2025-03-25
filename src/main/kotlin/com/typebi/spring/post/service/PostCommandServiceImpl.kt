@@ -8,7 +8,8 @@ import com.typebi.spring.common.exception.NotFoundException
 import com.typebi.spring.db.entity.postOf
 import com.typebi.spring.db.repository.PostRepository
 import com.typebi.spring.db.repository.UserRepository
-import jakarta.transaction.Transactional
+import org.springframework.cache.annotation.CacheEvict
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.stereotype.Service
 
 @Service
@@ -23,6 +24,7 @@ class PostCommandServiceImpl(
         return postResponseDTOFrom(postRepository.save(postOf(postCreateDTO, author)))
     }
 
+    @CacheEvict
     @Transactional
     override fun updatePostById(id: Long, postUpdateDTO: PostUpdateDTO): PostResponseDTO {
         val post = postRepository.findById(id).orElseThrow { NotFoundException("Post not found with id : $id") }

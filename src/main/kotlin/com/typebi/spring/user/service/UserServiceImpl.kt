@@ -10,7 +10,7 @@ import com.typebi.spring.common.exception.NotFoundException
 import com.typebi.spring.db.entity.userOf
 import com.typebi.spring.db.repository.PostRepository
 import com.typebi.spring.db.repository.UserRepository
-import jakarta.transaction.Transactional
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 

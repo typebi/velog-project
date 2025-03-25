@@ -9,7 +9,8 @@ import com.typebi.spring.db.entity.commentOf
 import com.typebi.spring.db.repository.CommentRepository
 import com.typebi.spring.db.repository.PostRepository
 import com.typebi.spring.db.repository.UserRepository
-import jakarta.transaction.Transactional
+import org.springframework.cache.annotation.CacheEvict
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.stereotype.Service
 
 @Service
@@ -19,6 +20,7 @@ class CommentServiceImpl(
     private val commentRepository: CommentRepository,
 ) : CommentService {
 
+    @CacheEvict(value = ["commentsByPost"], key = "#commentCreateDTO.postId")
     @Transactional
     override fun createComment(commentCreateDTO: CommentCreateDTO): CommentResponseDTO {
         val post = postRepository.findById(commentCreateDTO.postId).orElseThrow { NotFoundException("Post not found with id : ${commentCreateDTO.postId}") }
@@ -35,6 +37,7 @@ class CommentServiceImpl(
         return commentResponseDTOFrom(comment)
     }
 
+    @CacheEvict(value = ["commentsByPost"], key = "#commentUpdateDTO.postId")
     @Transactional
     override fun updateCommentById(id: Long, commentUpdateDTO: CommentUpdateDTO): CommentResponseDTO {
         val comment = commentRepository.findById(id).orElseThrow { NotFoundException("Comment not found with id : $id") }
@@ -52,6 +55,7 @@ class CommentServiceImpl(
         return commentResponseDTOFrom(comment)
     }
 
+    @CacheEvict(value = ["commentsByPost"], key = "#comment.postId")
     @Transactional
     override fun deleteCommentById(id: Long): Boolean {
         val comment = commentRepository.findById(id).orElseThrow { NotFoundException("Comment not found with id : $id") }
