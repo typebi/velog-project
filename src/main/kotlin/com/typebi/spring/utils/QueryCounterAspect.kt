@@ -15,7 +15,7 @@ class QueryCounterAspect {
         queryCount = 0
     }
 
-    @Before("execution(* com.typebi.spring.db.repository.PostRepository.findById(..))")
+    @Before("execution(* com.typebi.spring.post.repository.PostRepository.findById(..))")
     fun countFindByIdCalls() {
         queryCount++
     }
