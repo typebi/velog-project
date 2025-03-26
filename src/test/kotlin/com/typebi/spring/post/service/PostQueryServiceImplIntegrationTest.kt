@@ -21,6 +21,9 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.cache.CacheManager
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 import org.springframework.test.context.junit.jupiter.SpringExtension
 
 @ExtendWith(SpringExtension::class)
@@ -46,6 +49,10 @@ class PostQueryServiceImplIntegrationTest {
     private lateinit var comment1: Comment
     private lateinit var comment2: Comment
 
+    private var pageNumber = 0 // 첫 번째 페이지 (0부터 시작)
+    private var pageSize = 10  // 페이지당 데이터 개수
+    private lateinit var pageable: Pageable
+
     @BeforeEach
     fun setUp() {
         // 테스트 데이터 생성 및 저장
@@ -56,6 +63,8 @@ class PostQueryServiceImplIntegrationTest {
         user2 = userRepository.save(userOf(UserCreateDTO(username = "user2", password = "1234", email = "user2@example.com")))
         post2 = postRepository.save(postOf(PostCreateDTO(title = "PostTitle2", content = "PostContent2", authorId = user2.id), user2))
         comment2 = commentRepository.save(commentOf(CommentCreateDTO(postId = post1.id, content = "Comment2.content", authorId = user1.id), post1, user1))
+
+        pageable = PageRequest.of(pageNumber, pageSize)
     }
 
     @AfterEach
@@ -92,17 +101,17 @@ class PostQueryServiceImplIntegrationTest {
     @Test
     fun getCommentsByPostIdCacheableTest() {
         // 처음 호출 시에는 캐시가 비어 있으므로 데이터베이스에서 조회
-        val comments1 = postQueryService.getCommentsByPostId(post1.id)
+        val comments1 = postQueryService.getCommentsByPostId(post1.id, pageable)
         assertNotNull(comments1)
-        assertEquals(2, comments1.size)
+        assertEquals(2, comments1.content.size)
 
         // 캐시에 저장되었는지 확인
-        val cachedComments = cacheManager.getCache("commentsByPost")?.get(post1.id, List::class.java)
+        val cachedComments = cacheManager.getCache("commentsByPost")?.get(post1.id, Page::class.java)
         assertNotNull(cachedComments)
         assertEquals(comments1, cachedComments)
 
         // 두 번째 호출 시에는 캐시에서 조회되어야 하므로 데이터베이스 조회 횟수가 증가하지 않아야 함
-        val comments2 = postQueryService.getCommentsByPostId(post1.id)
+        val comments2 = postQueryService.getCommentsByPostId(post1.id, pageable)
         assertEquals(comments1, comments2)
         assertEquals(1, queryCounterAspect.queryCount)
     }

@@ -9,6 +9,9 @@ import com.typebi.spring.post.service.PostCommandService
 import com.typebi.spring.post.service.PostQueryService
 import com.typebi.spring.common.exception.BadRequestException
 import com.typebi.spring.common.response.ApiResponse
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 import org.springframework.hateoas.server.mvc.linkTo
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -30,8 +33,8 @@ class PostController(
     }
 
     @GetMapping
-    fun getPosts(): ResponseEntity<ApiResponse<List<PostResponseDTO>>> {
-        val postDTOs = postQueryService.getPosts()
+    fun getPosts(pageable: Pageable): ResponseEntity<ApiResponse<Page<PostResponseDTO>>> {
+        val postDTOs = postQueryService.getPosts(pageable)
         val response = ApiResponse(true, postDTOs, "Posts retrieved successfully", HttpStatus.OK.value())
         return ResponseEntity.ok(response)
     }
@@ -43,7 +46,7 @@ class PostController(
             linkTo<PostController> { getPostById(postId) }.withSelfRel(),
             linkTo<PostController> { updatePostById(postId, null) }.withRel("update"),
             linkTo<PostController> { deletePostById(postId) }.withRel("delete"),
-            linkTo<PostController> { getCommentsByPostId(postId) }.withRel("comments"),
+            linkTo<PostController> { getCommentsByPostId(postId, PageRequest.of(0, 10)) }.withRel("comments"),
             linkTo<UserController> { getUserById(postDTO.authorId) }.withRel("author")
         )
         val response = ApiResponse(true, postDTO, "Post with ID $postId retrieved successfully", HttpStatus.OK.value())
@@ -51,8 +54,11 @@ class PostController(
     }
 
     @GetMapping("/{postId:\\d+}/comments")
-    fun getCommentsByPostId(@PathVariable(name = "postId") postId: Long): ResponseEntity<ApiResponse<List<CommentResponseDTO>>> {
-        val commentDTOs = postQueryService.getCommentsByPostId(postId)
+    fun getCommentsByPostId(
+        @PathVariable(name = "postId") postId: Long,
+        pageable: Pageable
+    ): ResponseEntity<ApiResponse<Page<CommentResponseDTO>>> {
+        val commentDTOs = postQueryService.getCommentsByPostId(postId, pageable)
         val response = ApiResponse(
             true,
             commentDTOs,
