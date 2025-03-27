@@ -5,6 +5,7 @@ import com.typebi.spring.comment.model.Comment
 import com.typebi.spring.post.model.Post
 import com.typebi.spring.user.model.User
 import com.typebi.spring.comment.repository.CommentRepository
+import com.typebi.spring.common.response.CursorPage
 import com.typebi.spring.post.repository.PostRepository
 import com.typebi.spring.user.repository.UserRepository
 import org.junit.jupiter.api.Test
@@ -90,6 +91,42 @@ class PostQueryServiceImplTest {
         assertEquals(posts[1].content, result.content[1].content)
 
         verify(postRepository, times(1)).findAll(pageable)
+    }
+
+    @Test
+    fun getPostsFeed() {
+        val pageNumber = 0 // 첫 번째 페이지 (0부터 시작)
+        val pageSize = 5  // 페이지당 데이터 개수
+        val pageSizePlusOne = pageSize + 1
+        val pageable: Pageable = PageRequest.of(pageNumber, pageSizePlusOne)
+
+        val posts = listOf(mockPost1, mockPost2)
+
+        `when`(postRepository.findTopNById(pageSizePlusOne.toLong())).thenReturn(posts)
+        `when`(postRepository.findNextPageByIdLessThanOrderByIdDesc(mockPost2.id, pageable)).thenReturn(listOf(mockPost1))
+
+        // cursor 가 없는경우
+        val result1 = postQueryService.getPostsFeed(null)
+
+        assertEquals(2, result1.content.size)
+        assertEquals(posts[0].id, result1.content[0].id)
+        assertEquals(posts[0].title, result1.content[0].title)
+        assertEquals(posts[0].content, result1.content[0].content)
+        assertEquals(posts[1].id, result1.content[1].id)
+        assertEquals(posts[1].title, result1.content[1].title)
+        assertEquals(posts[1].content, result1.content[1].content)
+
+        verify(postRepository, times(1)).findTopNById(pageSizePlusOne.toLong())
+
+        // cursor 가 있는경우
+        val result2 = postQueryService.getPostsFeed(mockPost2.id)
+
+        assertEquals(1, result2.content.size)
+        assertEquals(posts[0].id, result2.content[0].id)
+        assertEquals(posts[0].title, result2.content[0].title)
+        assertEquals(posts[0].content, result2.content[0].content)
+
+        verify(postRepository, times(1)).findNextPageByIdLessThanOrderByIdDesc(mockPost2.id, pageable)
     }
 
     @Test
