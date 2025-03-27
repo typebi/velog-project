@@ -5,6 +5,7 @@ import com.typebi.spring.comment.model.Comment
 import com.typebi.spring.post.model.Post
 import com.typebi.spring.user.model.User
 import com.typebi.spring.comment.repository.CommentRepository
+import com.typebi.spring.common.response.CursorPage
 import com.typebi.spring.post.repository.PostRepository
 import com.typebi.spring.user.repository.UserRepository
 import org.junit.jupiter.api.Test
@@ -12,6 +13,9 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.mockito.Mockito.*
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.PageImpl
 import java.util.*
 
 class PostQueryServiceImplTest {
@@ -69,21 +73,60 @@ class PostQueryServiceImplTest {
 
     @Test
     fun getPostsTest() {
+        val pageNumber = 0 // 첫 번째 페이지 (0부터 시작)
+        val pageSize = 10  // 페이지당 데이터 개수
+        val pageable: Pageable = PageRequest.of(pageNumber, pageSize)
+
         val posts = listOf(mockPost1, mockPost2)
+        `when`(postRepository.findAll(pageable)).thenReturn(PageImpl(posts))
 
-        `when`(postRepository.findAll()).thenReturn(posts)
-
-        val result = postQueryService.getPosts()
+        val result = postQueryService.getPosts(pageable)
 
         assertEquals(2, result.size)
-        assertEquals(posts[0].id, result[0].id)
-        assertEquals(posts[0].title, result[0].title)
-        assertEquals(posts[0].content, result[0].content)
-        assertEquals(posts[1].id, result[1].id)
-        assertEquals(posts[1].title, result[1].title)
-        assertEquals(posts[1].content, result[1].content)
+        assertEquals(posts[0].id, result.content[0].id)
+        assertEquals(posts[0].title, result.content[0].title)
+        assertEquals(posts[0].content, result.content[0].content)
+        assertEquals(posts[1].id, result.content[1].id)
+        assertEquals(posts[1].title, result.content[1].title)
+        assertEquals(posts[1].content, result.content[1].content)
 
-        verify(postRepository, times(1)).findAll()
+        verify(postRepository, times(1)).findAll(pageable)
+    }
+
+    @Test
+    fun getPostsFeed() {
+        val pageNumber = 0 // 첫 번째 페이지 (0부터 시작)
+        val pageSize = 5  // 페이지당 데이터 개수
+        val pageSizePlusOne = pageSize + 1
+        val pageable: Pageable = PageRequest.of(pageNumber, pageSizePlusOne)
+
+        val posts = listOf(mockPost1, mockPost2)
+
+        `when`(postRepository.findTopNById(pageSizePlusOne.toLong())).thenReturn(posts)
+        `when`(postRepository.findNextPageByIdLessThanOrderByIdDesc(mockPost2.id, pageable)).thenReturn(listOf(mockPost1))
+
+        // cursor 가 없는경우
+        val result1 = postQueryService.getPostsFeed(null)
+
+        assertEquals(2, result1.content.size)
+        assertEquals(posts[0].id, result1.content[0].id)
+        assertEquals(posts[0].title, result1.content[0].title)
+        assertEquals(posts[0].content, result1.content[0].content)
+        assertEquals(posts[1].id, result1.content[1].id)
+        assertEquals(posts[1].title, result1.content[1].title)
+        assertEquals(posts[1].content, result1.content[1].content)
+
+        verify(postRepository, times(1)).findTopNById(pageSizePlusOne.toLong())
+
+        // cursor 가 있는경우
+        val result2 = postQueryService.getPostsFeed(mockPost2.id)
+
+        assertEquals(1, result2.content.size)
+        assertEquals(posts[0].id, result2.content[0].id)
+        assertEquals(posts[0].title, result2.content[0].title)
+        assertEquals(posts[0].content, result2.content[0].content)
+
+        verify(postRepository, times(1)).findNextPageByIdLessThanOrderByIdDesc(mockPost2.id, pageable)
     }
 
     @Test
@@ -113,21 +156,24 @@ class PostQueryServiceImplTest {
 
     @Test
     fun getCommentsByPostId() {
+        val pageNumber = 0 // 첫 번째 페이지 (0부터 시작)
+        val pageSize = 10  // 페이지당 데이터 개수
+        val pageable: Pageable = PageRequest.of(pageNumber, pageSize)
+
         val postId = 1L
+        `when`(commentRepository.findByPostId(postId, pageable)).thenReturn(PageImpl(listOf(mockComment1, mockComment2)))
 
-        `when`(commentRepository.findByPostId(postId)).thenReturn(listOf(mockComment1, mockComment2))
+        val result = postQueryService.getCommentsByPostId(postId, pageable)
 
-        val result = postQueryService.getCommentsByPostId(postId)
+        assertEquals(mockComment1.id, result.content[0].id)
+        assertEquals(mockComment1.post.id, result.content[0].postId)
+        assertEquals(mockComment1.content, result.content[0].content)
+        assertEquals(mockComment1.author.id, result.content[0].authorId)
+        assertEquals(mockComment2.id, result.content[1].id)
+        assertEquals(mockComment2.post.id, result.content[1].postId)
+        assertEquals(mockComment2.content, result.content[1].content)
+        assertEquals(mockComment2.author.id, result.content[1].authorId)
 
-        assertEquals(mockComment1.id, result[0].id)
-        assertEquals(mockComment1.post.id, result[0].postId)
-        assertEquals(mockComment1.content, result[0].content)
-        assertEquals(mockComment1.author.id, result[0].authorId)
-        assertEquals(mockComment2.id, result[1].id)
-        assertEquals(mockComment2.post.id, result[1].postId)
-        assertEquals(mockComment2.content, result[1].content)
-        assertEquals(mockComment2.author.id, result[1].authorId)
-
-        verify(commentRepository, times(1)).findByPostId(postId)
+        verify(commentRepository, times(1)).findByPostId(postId, pageable)
     }
 }

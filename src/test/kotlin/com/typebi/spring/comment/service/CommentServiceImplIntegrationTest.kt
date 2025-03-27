@@ -22,6 +22,9 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.cache.CacheManager
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 import org.springframework.test.context.junit.jupiter.SpringExtension
 
 @ExtendWith(SpringExtension::class)
@@ -49,6 +52,10 @@ class CommentServiceImplIntegrationTest {
     private lateinit var comment1: Comment
     private lateinit var comment2: Comment
 
+    private var pageNumber = 0 // 첫 번째 페이지 (0부터 시작)
+    private var pageSize = 10  // 페이지당 데이터 개수
+    private lateinit var pageable: Pageable
+
     @BeforeEach
     fun setUp() {
         // 테스트 데이터 생성 및 저장
@@ -60,6 +67,7 @@ class CommentServiceImplIntegrationTest {
         post2 = postRepository.save(postOf(PostCreateDTO(title = "PostTitle2", content = "PostContent2", authorId = user2.id), user2))
         comment2 = commentRepository.save(commentOf(CommentCreateDTO(postId = post1.id, content = "Comment2.content", authorId = user1.id), post1, user1))
 
+        pageable = PageRequest.of(pageNumber, pageSize)
     }
 
     @AfterEach
@@ -79,13 +87,13 @@ class CommentServiceImplIntegrationTest {
     @Test
     fun updateCommentByIdCacheEvictTest() {
         // 처음 호출 시에는 캐시가 비어 있으므로 데이터베이스에서 조회
-        val comments = postQueryService.getCommentsByPostId(post1.id)
+        val comments = postQueryService.getCommentsByPostId(post1.id, pageable)
         assertNotNull(comments)
-        assertEquals(2, comments.size)
+        assertEquals(2, comments.content.size)
         assertEquals(1, queryCounterAspect.queryCount)
 
         // 캐시에 저장되어 있는지 확인
-        val cachedComments1 = cacheManager.getCache("commentsByPost")?.get(post1.id, List::class.java)
+        val cachedComments1 = cacheManager.getCache("commentsByPost")?.get(post1.id, Page::class.java)
         assertEquals(comments, cachedComments1)
 
         // 업데이트
@@ -94,7 +102,7 @@ class CommentServiceImplIntegrationTest {
         assertEquals(1, queryCounterAspect.queryCount)
 
         // 캐시에서 삭제가 됐는지 확인
-        val cachedComments2 = cacheManager.getCache("commentsByPost")?.get(post1.id, List::class.java)
+        val cachedComments2 = cacheManager.getCache("commentsByPost")?.get(post1.id, Page::class.java)
         assertNull(cachedComments2)
         assertEquals(1, queryCounterAspect.queryCount)
     }
@@ -102,13 +110,13 @@ class CommentServiceImplIntegrationTest {
     @Test
     fun deleteCommentByIdCacheEvictTest() {
         // 처음 호출 시에는 캐시가 비어 있으므로 데이터베이스에서 조회
-        val comments = postQueryService.getCommentsByPostId(post1.id)
+        val comments = postQueryService.getCommentsByPostId(post1.id, pageable)
         assertNotNull(comments)
-        assertEquals(2, comments.size)
+        assertEquals(2, comments.content.size)
         assertEquals(1, queryCounterAspect.queryCount)
 
         // 캐시에 저장되어 있는지 확인
-        val cachedComments1 = cacheManager.getCache("commentsByPost")?.get(post1.id, List::class.java)
+        val cachedComments1 = cacheManager.getCache("commentsByPost")?.get(post1.id, Page::class.java)
         assertEquals(comments, cachedComments1)
 
         // 삭제
@@ -116,7 +124,7 @@ class CommentServiceImplIntegrationTest {
         assertTrue(result)
 
         // 캐시에서 삭제가 됐는지 확인
-        val cachedComments2 = cacheManager.getCache("commentsByPost")?.get(post1.id, List::class.java)
+        val cachedComments2 = cacheManager.getCache("commentsByPost")?.get(post1.id, Page::class.java)
         assertNull(cachedComments2)
     }
 }
