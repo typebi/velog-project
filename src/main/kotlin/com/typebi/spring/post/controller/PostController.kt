@@ -9,6 +9,7 @@ import com.typebi.spring.post.service.PostCommandService
 import com.typebi.spring.post.service.PostQueryService
 import com.typebi.spring.common.exception.BadRequestException
 import com.typebi.spring.common.response.ApiResponse
+import com.typebi.spring.common.response.CursorPage
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
@@ -35,6 +36,13 @@ class PostController(
     @GetMapping
     fun getPosts(pageable: Pageable): ResponseEntity<ApiResponse<Page<PostResponseDTO>>> {
         val postDTOs = postQueryService.getPosts(pageable)
+        val response = ApiResponse(true, postDTOs, "Posts retrieved successfully", HttpStatus.OK.value())
+        return ResponseEntity.ok(response)
+    }
+
+    @GetMapping("/feed")
+    fun getPostsFeed(nextCursor: Long?): ResponseEntity<ApiResponse<CursorPage<PostResponseDTO>>> {
+        val postDTOs = postQueryService.getPostsFeed(nextCursor)
         val response = ApiResponse(true, postDTOs, "Posts retrieved successfully", HttpStatus.OK.value())
         return ResponseEntity.ok(response)
     }
