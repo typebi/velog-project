@@ -29,7 +29,7 @@ dependencies {
 
 	// DB
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-	runtimeOnly("com.h2database:h2")
+	implementation("mysql:mysql-connector-java:8.0.33")
 
 	// TEST
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
