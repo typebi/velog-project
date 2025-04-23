@@ -4,6 +4,7 @@ import com.typebi.spring.common.model.BaseEntity
 import com.typebi.spring.user.requests.UserCreateDTO
 import jakarta.persistence.*
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
+import java.util.*
 
 @Entity
 @Table(name = "users")
@@ -20,6 +21,10 @@ class User: BaseEntity() {
 
     @Column(nullable = false, unique = true)
     lateinit var email: String
+
+    @Column(nullable = false, unique = true)
+    val publicId: String = UUID.randomUUID().toString()
+
 }
 
 fun userOf(userCreateDTO: UserCreateDTO): User {

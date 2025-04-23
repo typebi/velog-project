@@ -8,6 +8,7 @@ data class UserResponseDTO(
     val id: Long,
     val username: String,
     val email: String,
+    val publicId: String,
 ): RepresentationModel<UserResponseDTO>()
 
 fun userResponseDTOFrom(user: User): UserResponseDTO {
@@ -15,5 +16,6 @@ fun userResponseDTOFrom(user: User): UserResponseDTO {
         user.id,
         user.username,
         user.email,
+        user.publicId,
     )
 }
